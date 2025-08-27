@@ -1,0 +1,6 @@
+# Feature/Settings Branch
+
+This branch was created from main for settings-related development work.
+
+Branch created on: $(date)
+Base commit: 8e355be (Merge pull request #4 from gcalabretta/feature/fix)
