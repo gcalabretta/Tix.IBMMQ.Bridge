@@ -61,10 +61,10 @@ public class MQBridgeService : BackgroundService
         var inbound = _options.Connections[pair.InboundConnection];
         var outbound = _options.Connections[pair.OutboundConnection];
 
-        _logger.LogInformation("{from} > {to}: {queue}", 
-            inbound.ConnectionName, outbound.ConnectionName,
+        _logger.LogInformation("{fromHost}:{fromPort} > {toHost}:{toPort}: {queue}",
+            inbound.Host, inbound.Port, outbound.Host, outbound.Port,
             pair.InboundQueue + (pair.InboundQueue != pair.OutboundQueue ? $" > {pair.OutboundQueue}" : null)
-            );
+        );
 
         // Holds the last successfully forwarded MessageId to avoid duplicates after a crash/outage
         byte[] lastMessageId = Array.Empty<byte>();
@@ -175,11 +175,10 @@ public class MQBridgeService : BackgroundService
 
     private Hashtable BuildProperties(ConnectionOptions opts, string channel)
     {
-        var (host, port) = ParseConnectionName(opts.ConnectionName);
         var properties = new Hashtable
         {
-            { MQC.HOST_NAME_PROPERTY, host },
-            { MQC.PORT_PROPERTY, port },
+            { MQC.HOST_NAME_PROPERTY, opts.Host },
+            { MQC.PORT_PROPERTY, opts.Port },
             { MQC.CHANNEL_PROPERTY, channel },
             { MQC.USER_ID_PROPERTY, opts.UserId },
             { MQC.PASSWORD_PROPERTY, opts.Password },
@@ -197,14 +196,5 @@ public class MQBridgeService : BackgroundService
         }
 
         return properties;
-    }
-
-    public static (string host, int port) ParseConnectionName(string connectionName)
-    {
-        var start = connectionName.IndexOf('(');
-        var end = connectionName.IndexOf(')', start + 1);
-        var host = connectionName.Substring(0, start);
-        var portStr = connectionName.Substring(start + 1, end - start - 1);
-        return (host, int.Parse(portStr));
     }
 }

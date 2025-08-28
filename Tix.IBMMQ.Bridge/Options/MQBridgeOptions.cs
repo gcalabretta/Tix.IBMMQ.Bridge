@@ -1,8 +1,7 @@
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
-using Microsoft.Extensions.Configuration;
 
 namespace Tix.IBMMQ.Bridge.Options;
 
@@ -40,88 +39,5 @@ public class MQBridgeOptions
         ).ToList();
         if (noChannelTest.Any())
             throw new InvalidOperationException($"Missing inbound or outbound channel in queue pair {noChannelTest[0].InboundQueue}");
-    }
-
-    /// <summary>
-    /// Short json settings parser:
-    /// 
-    /// {
-    ///    "MQBridge": {
-    ///        "InboundConnection": {
-    ///            ...
-    ///            "Channel": "default channel if it (almost) never changes"
-    ///        },
-    ///        "OutboundConnection": {
-    ///            ...
-    ///            "Channel": "default channel if it (almost) never changes"
-    ///        },
-    ///        "QueuePairs": [
-    ///            { "In": "queue name", "Out": "blank if = In", InChannel = "for channel exception", OutChannel = "for channel exception" },
-    ///            { "In": "queue name 2" },
-    ///            { "In": "queue name 3" },            
-    ///            { "In": "queue name 4", "Out": "different queue name 4 " },
-    ///        ]
-    ///    }
-    ///}
-    /// </summary>
-    /// <param name="fileName"></param>
-    /// <returns></returns>
-    public static MQBridgeOptions ParseJsonReduxVerion(string fileName)
-    {
-        const string inConn = "In";
-        const string outConn = "Out";
-
-        var root = new ConfigurationBuilder()
-            .AddJsonFile(fileName)
-            .Build()
-            .GetSection("MQBridge");
-
-        var conf = new MQBridgeOptions();
-        var inConnSection = root.GetSection("InboundConnection");
-        var outConnSection = root.GetSection("OutboundConnection");
-        
-        conf.Connections.Add(inConn, inConnSection.Get<ConnectionOptions>());
-        conf.Connections.Add(outConn, outConnSection.Get<ConnectionOptions>());
-
-        foreach (var pair in root.GetSection("QueuePairs").GetChildren())
-        {
-            var qp = new QueuePairOptions() 
-            {
-                InboundConnection = inConn,
-                InboundChannel = pair.GetValue<string>("InChannel"),
-                InboundQueue = pair.GetValue<string>("In"),
-                OutboundConnection = outConn,
-                OutboundChannel = pair.GetValue<string>("OutChannel"),
-                OutboundQueue = pair.GetValue<string>("Out")
-            };
-
-            if (string.IsNullOrWhiteSpace(qp.InboundChannel))
-                qp.InboundChannel = inConnSection["Channel"];
-            
-            if (string.IsNullOrWhiteSpace(qp.OutboundChannel))
-                qp.OutboundChannel = outConnSection["Channel"];
-            
-            if (string.IsNullOrWhiteSpace(qp.OutboundQueue))
-                qp.OutboundQueue = qp.InboundQueue; // Out name = In queue name
-
-            conf.QueuePairs.Add(qp);
-        }
-
-        conf.Validate();
-
-        return conf;
-    }
-
-    public string Serialize()
-    {
-        var options = new JsonSerializerOptions
-        {
-            WriteIndented = true
-        };
-        
-        return JsonSerializer.Serialize(
-            new { MQBridge = this },
-            options
-            );
     }
 }
