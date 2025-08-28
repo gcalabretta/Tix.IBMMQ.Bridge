@@ -20,14 +20,11 @@ namespace Tix.IBMMQ.Bridge.E2ETests
 
         public async Task InitializeAsync()
         {
-            var appSettingsReduxPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.actual.json");
-            _mqBridgeOptions = MQBridgeOptions.ParseJsonReduxVerion(appSettingsReduxPath);
+            throw new System.NotImplementedException("manage new appsettings.actual.config file , no json anymore");
 
-            var appSettingsFinal = Path.Combine(Path.GetTempPath(), Path.GetTempFileName());
-            File.WriteAllText(appSettingsFinal, _mqBridgeOptions.Serialize());
 
-            _bridgeContainer = new MqBridgeContainer(appSettingsFinal);
-            await _bridgeContainer.StartAsync();
+            // _bridge = new MqBridgeHost(logger, opt);
+            // await _bridge.StartAsync();
         }
 
         public async Task DisposeAsync()

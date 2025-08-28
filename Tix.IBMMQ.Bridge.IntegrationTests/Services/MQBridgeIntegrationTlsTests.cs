@@ -35,14 +35,16 @@ public class MQBridgeIntegrationTlsTests(MqTlsFixture fx, ITestOutputHelper logg
         var conn1 = new ConnectionOptions
         {
             QueueManagerName = "QM1",
-            ConnectionName = $"localhost({server1Port})",
+            Host = "localhost",
+            Port = server1Port,
             UserId = "app",
             Password = "passw0rd"
         };
         var conn2 = new ConnectionOptions
         {
             QueueManagerName = "QM1",
-            ConnectionName = $"localhost({server2Port})",
+            Host = "localhost",
+            Port = server2Port,
             UserId = "app",
             Password = "passw0rd"
         };
@@ -119,8 +121,7 @@ public class MQBridgeIntegrationTlsTests(MqTlsFixture fx, ITestOutputHelper logg
                 InboundQueue = $"DEV.QUEUE.{n}",
                 OutboundConnection = "ConnB",
                 OutboundChannel = channel,
-                OutboundQueue = $"DEV.QUEUE.{n}",
-                PollIntervalSeconds = 30
+                OutboundQueue = $"DEV.QUEUE.{n}"
             });
         });
 
@@ -176,11 +177,10 @@ public class MQBridgeIntegrationTlsTests(MqTlsFixture fx, ITestOutputHelper logg
 
     private static Hashtable BuildProperties(ConnectionOptions opts, string channel)
     {
-        var (host, port) = MQBridgeService.ParseConnectionName(opts.ConnectionName);
         return new Hashtable
         {
-            { MQC.HOST_NAME_PROPERTY, host },
-            { MQC.PORT_PROPERTY, port },
+            { MQC.HOST_NAME_PROPERTY, opts.Host },
+            { MQC.PORT_PROPERTY, opts.Port },
             { MQC.CHANNEL_PROPERTY, channel },
             { MQC.USER_ID_PROPERTY, opts.UserId },
             { MQC.PASSWORD_PROPERTY, opts.Password },

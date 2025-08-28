@@ -10,6 +10,5 @@
     <PackageReference Include="Shouldly" Version="4.3.0" />
     <PackageReference Include="IBMMQDotnetClient" Version="9.4.3" />
     <ProjectReference Include="..\Tix.IBMMQ.Bridge\Tix.IBMMQ.Bridge.csproj" />
-    <None Include="..\Tix.IBMMQ.Bridge\appsettings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

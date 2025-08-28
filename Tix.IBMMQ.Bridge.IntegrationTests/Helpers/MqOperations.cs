@@ -34,11 +34,10 @@ namespace Tix.IBMMQ.Bridge.IntegrationTests.Helpers
 
         private static Hashtable BuildProperties(ConnectionOptions opts, string channel)
         {
-            var (host, port) = MQBridgeService.ParseConnectionName(opts.ConnectionName);
             var properties = new Hashtable
             {
-                { MQC.HOST_NAME_PROPERTY, host },
-                { MQC.PORT_PROPERTY, port },
+                { MQC.HOST_NAME_PROPERTY, opts.Host },
+                { MQC.PORT_PROPERTY, opts.Port },
                 { MQC.CHANNEL_PROPERTY, channel },
                 { MQC.USER_ID_PROPERTY, opts.UserId },
                 { MQC.PASSWORD_PROPERTY, opts.Password },

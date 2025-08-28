@@ -10,14 +10,11 @@ namespace Tix.IBMMQ.Bridge.E2ETests.Helpers
     {
         private static MQQueueManager CreateQueueManager(this ConnectionOptions opt, string channel)
         {
-            var host = opt.ConnectionName.Split('(')[0]
-                // Hack: normalize host for Ibm mq server used in container
-                .Replace("host.docker.internal", "localhost");
-            var port = int.Parse(opt.ConnectionName.Split('(')[1].TrimEnd(')'));
             var properties = new Hashtable
             {
-                { MQC.HOST_NAME_PROPERTY, host },
-                { MQC.PORT_PROPERTY, port },
+                // Hack: normalize host for Ibm mq server used in container
+                { MQC.HOST_NAME_PROPERTY, opt.Host.Replace("host.docker.internal", "localhost") },
+                { MQC.PORT_PROPERTY, opt.Port },
                 { MQC.CHANNEL_PROPERTY, channel },
                 { MQC.USER_ID_PROPERTY, opt.UserId },
                 { MQC.PASSWORD_PROPERTY, opt.Password }

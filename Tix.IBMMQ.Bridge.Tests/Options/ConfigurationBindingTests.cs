@@ -11,10 +11,13 @@ public class ConfigurationBindingTests
     public void Should_bind_MQBridge_options()
     {
         var config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
+            .Add(new Tix.IBMMQ.Bridge.Configuration.MQBridgeConfigurationSource(
+                "../../../../Tix.IBMMQ.Bridge/appsettings.config",
+                "../../../../Tix.IBMMQ.Bridge/queuepairs.config"
+            ))
             .Build();
 
-        var opts = config.GetSection("MQBridge").Get<MQBridgeOptions>();
+        var opts = config.Get<MQBridgeOptions>();
 
         opts.ShouldNotBeNull();
         opts!.Connections.ShouldContainKey("ConnA");

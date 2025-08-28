@@ -1,6 +1,6 @@
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Tix.IBMMQ.Bridge.Options;
 using Tix.IBMMQ.Bridge.Services;
 using System.Runtime.InteropServices;
@@ -13,6 +13,11 @@ using System.Linq;
 FixLinuxCertificates();
 
 var builder = WebApplication.CreateBuilder(args);
+
+((IConfigurationBuilder)builder.Configuration).Add(new Tix.IBMMQ.Bridge.Configuration.MQBridgeConfigurationSource(
+    Path.Combine(AppContext.BaseDirectory, "appsettings.config"),
+    Path.Combine(AppContext.BaseDirectory, "queuepairs.config")
+));
 
 builder.Services.Configure<MQBridgeOptions>(builder.Configuration.GetSection("MQBridge"));
 builder.Services.AddHostedService<MQBridgeService>();
