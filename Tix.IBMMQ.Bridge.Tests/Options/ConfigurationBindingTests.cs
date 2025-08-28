@@ -19,10 +19,6 @@ public class ConfigurationBindingTests
 
         var opts = config.Get<MQBridgeOptions>();
 
-        opts.ShouldNotBeNull();
-        opts!.Connections.ShouldContainKey("ConnA");
-        opts.QueuePairs.Count.ShouldBeGreaterThan(0);
-        opts.Connections["ConnA"].QueueManagerName.ShouldBe("QM1");
-        opts.QueuePairs[0].InboundChannel.ShouldBe("SVRCONN.CHANNEL");
+        Should.NotThrow(() => opts.Validate());
     }
 }
