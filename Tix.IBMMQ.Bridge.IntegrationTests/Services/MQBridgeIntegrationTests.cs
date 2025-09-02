@@ -170,8 +170,7 @@ public class MQBridgeIntegrationTests : IAsyncLifetime
                 InboundQueue = $"DEV.QUEUE.{n}",
                 OutboundConnection = "ConnB",
                 OutboundChannel = channel,
-                OutboundQueue = $"DEV.QUEUE.{n}",
-                PollIntervalSeconds = 1
+                OutboundQueue = $"DEV.QUEUE.{n}"
             });
         });
 

@@ -17,6 +17,7 @@ namespace Tix.IBMMQ.Bridge.IntegrationTests.Services;
 
 public sealed class MqTlsFixture : IAsyncLifetime
 {
+
     public IContainer MqServer1 { get; private set; } = default!;
     public IContainer MqServer2 { get; private set; } = default!;
     public INetwork Network { get; private set; } = default!;
@@ -31,6 +32,34 @@ public sealed class MqTlsFixture : IAsyncLifetime
     private string _trustDir = default!;
     private X509Certificate2 _caCert = default!;
     private X509Certificate2 _serverCert = default!;
+
+
+    private static bool ImageExists(string image)
+    {
+        var psi = new System.Diagnostics.ProcessStartInfo("docker", $"image inspect {image}")
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+        using var proc = System.Diagnostics.Process.Start(psi);
+        proc.WaitForExit();
+        return proc.ExitCode == 0;
+    }
+
+    private static void RunScript(string script)
+    {
+        var psi = new System.Diagnostics.ProcessStartInfo("bash", script)
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+        using var proc = System.Diagnostics.Process.Start(psi);
+        proc.WaitForExit();
+        if (proc.ExitCode != 0)
+        {
+            throw new InvalidOperationException($"Script {script} failed.");
+        }
+    }
 
     public async Task InitializeAsync()
     {
@@ -65,8 +94,18 @@ public sealed class MqTlsFixture : IAsyncLifetime
             "SET CHLAUTH('APP.TLS.SVRCONN') TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(CHANNEL) ACTION(ADD)",
             "REFRESH SECURITY TYPE(SSL)"));
 
+        var isArm = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture == System.Runtime.InteropServices.Architecture.Arm64;
+        var image = isArm
+            ? "ibm-mqadvanced-server-dev:9.4.3.0-arm64"
+            : "ibmcom/mq:latest";
+
+        if (isArm && !ImageExists(image))
+        {
+            RunScript("./build-arm-mq-image.sh");
+        }
+
         MqServer1 = new ContainerBuilder()
-            .WithImage("ibm-mqadvanced-server-dev:9.4.3.0-arm64")
+            .WithImage(image)
             .WithEnvironment("LICENSE", "accept")
             .WithEnvironment("MQ_QMGR_NAME", "QM1")
             .WithEnvironment("MQ_APP_PASSWORD", "passw0rd")
@@ -83,7 +122,7 @@ public sealed class MqTlsFixture : IAsyncLifetime
             .Build();
         
         MqServer2 = new ContainerBuilder()
-            .WithImage("ibm-mqadvanced-server-dev:9.4.3.0-arm64")
+            .WithImage(image)
             .WithEnvironment("LICENSE", "accept")
             .WithEnvironment("MQ_QMGR_NAME", "QM1")
             .WithEnvironment("MQ_APP_PASSWORD", "passw0rd")
@@ -217,7 +256,6 @@ public sealed class MqTlsFixture : IAsyncLifetime
 
         await MqServer1.DisposeAsync();
         await MqServer2.DisposeAsync();
-
         await Network.DisposeAsync();
 
         try

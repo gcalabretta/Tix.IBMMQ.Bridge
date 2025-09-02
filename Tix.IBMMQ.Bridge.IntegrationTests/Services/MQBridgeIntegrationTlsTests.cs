@@ -119,8 +119,7 @@ public class MQBridgeIntegrationTlsTests(MqTlsFixture fx, ITestOutputHelper logg
                 InboundQueue = $"DEV.QUEUE.{n}",
                 OutboundConnection = "ConnB",
                 OutboundChannel = channel,
-                OutboundQueue = $"DEV.QUEUE.{n}",
-                PollIntervalSeconds = 30
+                OutboundQueue = $"DEV.QUEUE.{n}"
             });
         });
 
