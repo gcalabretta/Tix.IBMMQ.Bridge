@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
-using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using DotNet.Testcontainers;
 using DotNet.Testcontainers.Builders;
@@ -32,22 +30,7 @@ public class MessageOverheadTests : IAsyncLifetime
     public MessageOverheadTests(ITestOutputHelper logger)
     {
         _logger = logger;
-        var arch = RuntimeInformation.ProcessArchitecture switch
-        {
-            Architecture.Arm64 => "arm64",
-            _ => "amd64"
-        };
-        var image = $"ibm-mqadvanced-server-dev:9.4.0.0-{arch}";
-
-        if (!ImageExists(image))
-        {
-            var buildScript = RuntimeInformation.ProcessArchitecture switch
-            {
-                Architecture.Arm64 => "./build-arm-mq-image.sh",
-                _ => "./build-amd-mq-image.sh"
-            };
-            RunScript(buildScript);
-        }
+        var image = "icr.io/ibm-messaging/mq:9.4.0.15-r1";
 
         var mqscPath = Path.GetFullPath("Tix.IBMMQ.Bridge.IntegrationTests/message-overhead-test.mqsc");
 
@@ -129,32 +112,5 @@ public class MessageOverheadTests : IAsyncLifetime
     {
         var parts = connectionName.Split(new[] { '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
         return (parts[0], int.Parse(parts[1]));
-    }
-
-    private static bool ImageExists(string image)
-    {
-        var psi = new ProcessStartInfo("docker", $"image inspect {image}")
-        {
-            RedirectStandardOutput = true,
-            RedirectStandardError = true
-        };
-        using var proc = Process.Start(psi);
-        proc.WaitForExit();
-        return proc.ExitCode == 0;
-    }
-
-    private static void RunScript(string script)
-    {
-        var psi = new ProcessStartInfo(script)
-        {
-            RedirectStandardOutput = true,
-            RedirectStandardError = true
-        };
-        using var proc = Process.Start(psi);
-        proc.WaitForExit();
-        if (proc.ExitCode != 0)
-        {
-            throw new InvalidOperationException($"Script {script} failed.");
-        }
     }
 }
