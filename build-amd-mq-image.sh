@@ -8,4 +8,4 @@ git clone https://github.com/ibm-messaging/mq-container.git "$repo_dir"
 cd "$repo_dir"
 git fetch --all --tags
 git checkout tags/9.4.0.0
-ARCH=arm64 make build-devserver
+ARCH=amd64 make build-devserver

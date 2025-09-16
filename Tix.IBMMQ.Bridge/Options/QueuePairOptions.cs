@@ -8,4 +8,7 @@ public class QueuePairOptions
     public string OutboundConnection { get; set; } = string.Empty;
     public string OutboundChannel { get; set; } = string.Empty;
     public string OutboundQueue { get; set; } = string.Empty;
+
+    // This property is used by the integration tests.
+    public int PollIntervalSeconds { get; set; } = 1;
 }
