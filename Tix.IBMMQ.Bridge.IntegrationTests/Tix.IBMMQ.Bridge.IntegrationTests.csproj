@@ -25,6 +25,12 @@
     <None Update="message-overhead-test.mqsc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="build-amd-mq-image.sh">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="build-arm-mq-image.sh">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Services\ca.crt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
