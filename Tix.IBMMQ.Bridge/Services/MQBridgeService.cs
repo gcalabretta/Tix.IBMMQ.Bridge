@@ -25,8 +25,6 @@ public class MQBridgeService : BackgroundService
     GetRetryDelaySequence(5, 1800);
 #endif
 
-    private static readonly (int Min, int Max) mqWaitIntervalRangeSec = (30, 60);
-
     public MQBridgeService(IOptions<MQBridgeOptions> options, ILogger<MQBridgeService> logger)
     {
         _options = options.Value;
@@ -61,7 +59,7 @@ public class MQBridgeService : BackgroundService
         var inbound = _options.Connections[pair.InboundConnection];
         var outbound = _options.Connections[pair.OutboundConnection];
 
-        _logger.LogInformation("{from} > {to}: {queue}", 
+        _logger.LogInformation("{from} > {to}: {queue}",
             inbound.ConnectionName, outbound.ConnectionName,
             pair.InboundQueue + (pair.InboundQueue != pair.OutboundQueue ? $" > {pair.OutboundQueue}" : null)
             );
@@ -82,7 +80,7 @@ public class MQBridgeService : BackgroundService
                 var gmo = new MQGetMessageOptions
                 {
                     Options = MQC.MQGMO_WAIT | MQC.MQGMO_SYNCPOINT,
-                    WaitInterval = Random.Shared.Next(mqWaitIntervalRangeSec.Min * 1000, mqWaitIntervalRangeSec.Max * 1000)
+                    WaitInterval = pair.PollIntervalSeconds * 1000
                 };
 
                 var pmo = new MQPutMessageOptions { Options = MQC.MQPMO_SYNCPOINT };
@@ -192,7 +190,7 @@ public class MQBridgeService : BackgroundService
         {
             if (string.IsNullOrEmpty(opts.SslCipherSpec))
                 throw new InvalidOperationException("No SSL Cipher Spec specified: use SslCipherSpec connection property");
-             
+
             properties.Add(MQC.SSL_CIPHER_SPEC_PROPERTY, opts.SslCipherSpec);
         }
 
