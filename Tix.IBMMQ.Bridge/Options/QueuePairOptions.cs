@@ -8,4 +8,5 @@ public class QueuePairOptions
     public string OutboundConnection { get; set; } = string.Empty;
     public string OutboundChannel { get; set; } = string.Empty;
     public string OutboundQueue { get; set; } = string.Empty;
+    public int PollIntervalSeconds { get; set; } = 30;
 }
